@@ -352,7 +352,7 @@ namespace LapTrinhWindows.Migrations
                 table: "Users",
                 column: "Username",
                 unique: true);
-            // Bật chế độ Contained Database (tách khỏi transaction)
+            // Bật chế độ Contained Database
             migrationBuilder.Sql(@"
                 IF EXISTS (SELECT 1 FROM sys.databases WHERE name = DB_NAME() AND containment = 0)
                 BEGIN

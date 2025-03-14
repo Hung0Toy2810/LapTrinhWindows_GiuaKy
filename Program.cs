@@ -129,7 +129,7 @@ namespace LapTrinhWindow
                     new Employee { Username = "employee3", Password = "password3", FullName = "Employee 3", PhoneNumber = "1234567892", Email = "employee3@example.com", Status = AccountStatus.Active, Role = Roles.Libararian },
                     new Employee { Username = "employee4", Password = "password4", FullName = "Employee 4", PhoneNumber = "1234567893", Email = "employee4@example.com", Status = AccountStatus.Active, Role = Roles.Libararian },
                     new Employee { Username = "employee5", Password = "password5", FullName = "Employee 5", PhoneNumber = "1234567894", Email = "employee4@example.com", Status = AccountStatus.Active, Role = Roles.Admin },
-                    new Employee { Username = "employee6", Password = "password6", FullName = "Employee 6", PhoneNumber = "1234567895", Email = "employee4@example.com", Status = AccountStatus.Active, Role = Roles.Manager },
+                    new Employee { Username = "employee6", Password = "password6", FullName = "Employee 6", PhoneNumber = "1234567895", Email = "employee4@example.com", Status = AccountStatus.Active, Role = Roles.Admin },
                 };
 
                 context.Employees.AddRange(employees);

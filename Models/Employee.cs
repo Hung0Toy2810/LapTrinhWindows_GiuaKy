@@ -33,8 +33,6 @@ namespace LapTrinhWindow.Models
     public enum Roles
     {
         Admin,
-        Libararian,
-        Manager
-
+        Libararian
     }
 }

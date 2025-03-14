@@ -18,7 +18,8 @@ namespace LapTrinhWindows.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.3")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128)
+                .HasAnnotation("SqlServer:Script", "\n                IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = 'AppUser')\n                BEGIN\n                    CREATE USER AppUser WITH PASSWORD = 'User@789SafePass';\n                    GRANT SELECT, INSERT ON Users TO AppUser;\n                    GRANT SELECT ON Books TO AppUser;\n                    GRANT SELECT ON Categories TO AppUser;\n                    GRANT SELECT, INSERT, UPDATE ON Reservations TO AppUser;\n                    GRANT SELECT ON TransactionHistories TO AppUser;\n                    GRANT SELECT ON SystemConfigurations TO AppUser;\n                    GRANT SELECT ON BorrowingTransactions TO AppUser;\n                END;\n            ");
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
@@ -77,7 +78,7 @@ namespace LapTrinhWindows.Migrations
                     b.HasIndex("ISBN")
                         .IsUnique();
 
-                    b.ToTable("Books");
+                    b.ToTable("Books", (string)null);
                 });
 
             modelBuilder.Entity("LapTrinhWindow.Models.BorrowingTransaction", b =>
@@ -111,7 +112,7 @@ namespace LapTrinhWindows.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("BorrowingTransactions");
+                    b.ToTable("BorrowingTransactions", (string)null);
                 });
 
             modelBuilder.Entity("LapTrinhWindow.Models.Category", b =>
@@ -149,7 +150,7 @@ namespace LapTrinhWindows.Migrations
 
                     b.HasIndex("ParentCategoryId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("LapTrinhWindow.Models.Employee", b =>
@@ -198,7 +199,7 @@ namespace LapTrinhWindows.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Employees");
+                    b.ToTable("Employees", (string)null);
                 });
 
             modelBuilder.Entity("LapTrinhWindow.Models.ParentCategory", b =>
@@ -231,7 +232,7 @@ namespace LapTrinhWindows.Migrations
                     b.HasIndex("ParentCategoryName")
                         .IsUnique();
 
-                    b.ToTable("ParentCategories");
+                    b.ToTable("ParentCategories", (string)null);
                 });
 
             modelBuilder.Entity("LapTrinhWindow.Models.Reservation", b =>
@@ -272,7 +273,7 @@ namespace LapTrinhWindows.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Reservations");
+                    b.ToTable("Reservations", (string)null);
                 });
 
             modelBuilder.Entity("LapTrinhWindow.Models.SystemConfiguration", b =>
@@ -311,7 +312,7 @@ namespace LapTrinhWindows.Migrations
 
                     b.HasIndex("EmployeeId");
 
-                    b.ToTable("SystemConfigurations");
+                    b.ToTable("SystemConfigurations", (string)null);
                 });
 
             modelBuilder.Entity("LapTrinhWindow.Models.TransactionHistory", b =>
@@ -354,7 +355,7 @@ namespace LapTrinhWindows.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("TransactionHistories");
+                    b.ToTable("TransactionHistories", (string)null);
                 });
 
             modelBuilder.Entity("LapTrinhWindow.Models.User", b =>
@@ -423,7 +424,7 @@ namespace LapTrinhWindows.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("LapTrinhWindow.Models.Book", b =>

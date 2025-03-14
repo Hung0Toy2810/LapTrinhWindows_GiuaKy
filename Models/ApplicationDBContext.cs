@@ -31,7 +31,7 @@ namespace LapTrinhWindow.Models
             modelBuilder.Entity<Category>().ToTable("Categories");
             modelBuilder.Entity<Employee>().ToTable("Employees");
             modelBuilder.Entity<ParentCategory>().ToTable("ParentCategories");
-            modelBuilder.Entity<Reservation>().ToTable("Reservation");
+            modelBuilder.Entity<Reservation>().ToTable("Reservations");
             modelBuilder.Entity<SystemConfiguration>().ToTable("SystemConfigurations");
             modelBuilder.Entity<TransactionHistory>().ToTable("TransactionHistories");
             modelBuilder.Entity<User>().ToTable("Users");
@@ -149,48 +149,69 @@ namespace LapTrinhWindow.Models
                 entity.Property(pc => pc.Status)
                     .HasConversion<string>();
             });
-            modelBuilder.HasAnnotation("SqlServer:ContainedDatabaseAuthentication", true);
+            // Thiết lập chế độ Contained Database nếu chưa bật
+            string enableContainedDb = @"
+                IF (SERVERPROPERTY('IsContained') = 0)
+                BEGIN
+                    EXEC sp_configure 'contained database authentication', 1;
+                    RECONFIGURE;
+                END;
+            ";
 
-            
-            modelBuilder.HasAnnotation("SqlServer:Script", @"
+            // Thiết lập database là Contained Database
+            string setDatabaseContained = @"
                 IF EXISTS (SELECT 1 FROM sys.databases WHERE name = DB_NAME() AND containment = 0)
                 BEGIN
                     ALTER DATABASE CURRENT SET CONTAINMENT = PARTIAL;
-                END
-            ");
+                END;
+            ";
 
-            
-            modelBuilder.HasAnnotation("SqlServer:Script", @"
+            // Tạo tài khoản AdminUser
+            string createAdminUser = @"
                 IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = 'AdminUser')
                 BEGIN
                     CREATE USER AdminUser WITH PASSWORD = 'Admin@123StrongPass';
                     ALTER ROLE db_owner ADD MEMBER AdminUser;
-                END
-            ");
+                END;
+            ";
 
-            
-            modelBuilder.HasAnnotation("SqlServer:Script", @"
+            // Tạo tài khoản LibrarianUser
+            string createLibrarianUser = @"
                 IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = 'LibrarianUser')
                 BEGIN
                     CREATE USER LibrarianUser WITH PASSWORD = 'Librarian@456Secure';
-                    GRANT SELECT ON Books TO LibrarianUser;
-                    GRANT SELECT ON Categories TO LibrarianUser;
-                    GRANT SELECT, INSERT, UPDATE, DELETE ON BorrowingTransactions TO LibrarianUser;
-                    GRANT SELECT, INSERT, UPDATE, DELETE ON Reservation TO LibrarianUser;
+                    GRANT SELECT, INSERT ON Books TO LibrarianUser;
+                    GRANT SELECT, INSERT ON Categories TO LibrarianUser;
+                    GRANT SELECT, INSERT ON ParentCategories TO LibrarianUser;
+                    GRANT SELECT, INSERT ON Users TO LibrarianUser;
+                    GRANT SELECT, INSERT, UPDATE ON BorrowingTransactions TO LibrarianUser;
+                    GRANT SELECT, INSERT, UPDATE ON Reservations TO LibrarianUser;
                     GRANT SELECT, INSERT ON TransactionHistories TO LibrarianUser;
-                END
-            ");
+                    GRANT SELECT ON SystemConfigurations TO LibrarianUser;
+                END;
+            ";
 
-            
-            modelBuilder.HasAnnotation("SqlServer:Script", @"
+            // Tạo tài khoản AppUser
+            string createAppUser = @"
                 IF NOT EXISTS (SELECT * FROM sys.database_principals WHERE name = 'AppUser')
                 BEGIN
                     CREATE USER AppUser WITH PASSWORD = 'User@789SafePass';
+                    GRANT SELECT, INSERT ON Users TO AppUser;
                     GRANT SELECT ON Books TO AppUser;
                     GRANT SELECT ON Categories TO AppUser;
-                    GRANT SELECT, INSERT, UPDATE, DELETE ON Reservation TO AppUser;
-                END
-            ");
+                    GRANT SELECT, INSERT, UPDATE ON Reservations TO AppUser;
+                    GRANT SELECT ON TransactionHistories TO AppUser;
+                    GRANT SELECT ON SystemConfigurations TO AppUser;
+                    GRANT SELECT ON BorrowingTransactions TO AppUser;
+                END;
+            ";
+
+            // Chạy các script SQL
+            modelBuilder.HasAnnotation("SqlServer:Script", enableContainedDb);
+            modelBuilder.HasAnnotation("SqlServer:Script", setDatabaseContained);
+            modelBuilder.HasAnnotation("SqlServer:Script", createAdminUser);
+            modelBuilder.HasAnnotation("SqlServer:Script", createLibrarianUser);
+            modelBuilder.HasAnnotation("SqlServer:Script", createAppUser);
 
         }
     }

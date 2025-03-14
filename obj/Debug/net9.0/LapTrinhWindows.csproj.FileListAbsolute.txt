@@ -182,3 +182,5 @@
 /Users/luongnguyenthanhhung/Documents/WF/LapTrinhWindows/bin/Debug/net9.0/System.Text.Json.dll
 /Users/luongnguyenthanhhung/Documents/WF/LapTrinhWindows/bin/Debug/net9.0/runtimes/win/lib/net9.0/System.Diagnostics.EventLog.Messages.dll
 /Users/luongnguyenthanhhung/Documents/WF/LapTrinhWindows/bin/Debug/net9.0/runtimes/win/lib/net9.0/System.Diagnostics.EventLog.dll
+/Users/luongnguyenthanhhung/Documents/WF/LapTrinhWindows/bin/Debug/net9.0/appsettings.json
+/Users/luongnguyenthanhhung/Documents/WF/LapTrinhWindows/obj/Debug/net9.0/LapTrinhWindows.sourcelink.json

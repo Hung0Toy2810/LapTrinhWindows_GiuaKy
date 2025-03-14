@@ -3,6 +3,8 @@ global using System.ComponentModel.DataAnnotations;
 global using System.ComponentModel.DataAnnotations.Schema;
 global using Microsoft.EntityFrameworkCore;
 global using LapTrinhWindow.Models;
+global using System.Diagnostics;
+global using Microsoft.Data.SqlClient;
 global using Microsoft.EntityFrameworkCore.Diagnostics;
 global using Microsoft.EntityFrameworkCore.SqlServer;
 global using Microsoft.EntityFrameworkCore.Design;

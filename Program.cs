@@ -29,10 +29,6 @@
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    IConfiguration configuration = new ConfigurationBuilder()
-                        .AddJsonFile("appsettings.json")
-                        .Build();
-                    string DefaultConnectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
                     services.AddDbContext<ApplicationDBContext>(options =>
                         options.UseSqlServer("Server=localhost,1433;Database=LibraryManagement;User Id=sa;Password=YourPassword123;TrustServerCertificate=true;"));//thay connection string vào đây!!!
                     services.AddScoped<IUserRepository, UserRepository>();

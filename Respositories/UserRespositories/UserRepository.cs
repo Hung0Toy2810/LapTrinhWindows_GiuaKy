@@ -303,10 +303,29 @@ namespace LapTrinhWindow.Repositories.UserRepositories
 
                 using var command = connection.CreateCommand();
                 command.CommandText = @"
-                    SELECT * 
-                    FROM Reservations 
-                    JOIN Books ON Reservations.BookId = Books.BookId 
-                    WHERE Reservations.UserId = @userId;";
+                    SELECT 
+                        b.BookId AS BookId,
+                        b.BookName,
+                        b.ISBN,
+                        b.Author,
+                        b.Publisher,
+                        b.Pages,
+                        b.Quantity,
+                        b.Available,
+                        b.CategoryId,
+                        b.Price,
+                        b.Place,
+                        r.ReservationId,
+                        r.UserId,
+                        r.EmployeeId,
+                        r.ReservedDate,
+                        r.DueDate,
+                        r.ExpirationDate,
+                        r.Status
+                    FROM Reservations r
+                    JOIN Books b ON r.BookId = b.BookId
+                    WHERE r.UserId = @userId;";
+
                 command.Parameters.AddWithValue("@userId", userId);
 
                 using var reader = await command.ExecuteReaderAsync();
@@ -316,8 +335,19 @@ namespace LapTrinhWindow.Repositories.UserRepositories
                     results.Add(new BookReservationDto
                     {
                         BookId = reader.GetInt32(reader.GetOrdinal("BookId")),
-                        Author = reader.GetString(reader.GetOrdinal("Author")),
+                        BookName = reader.GetString(reader.GetOrdinal("BookName")),
                         ISBN = reader.GetString(reader.GetOrdinal("ISBN")),
+                        Author = reader.GetString(reader.GetOrdinal("Author")),
+                        Publisher = reader.GetString(reader.GetOrdinal("Publisher")),
+                        Pages = reader.GetInt32(reader.GetOrdinal("Pages")),
+                        Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                        Available = reader.GetInt32(reader.GetOrdinal("Available")),
+                        CategoryId = reader.GetInt32(reader.GetOrdinal("CategoryId")),
+                        Price = reader.GetDecimal(reader.GetOrdinal("Price")),
+                        Place = reader.GetString(reader.GetOrdinal("Place")),
+                        ReservationId = reader.GetInt32(reader.GetOrdinal("ReservationId")),
+                        UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
+                        EmployeeId = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
                         ReservedDate = reader.GetDateTime(reader.GetOrdinal("ReservedDate")),
                         DueDate = reader.GetDateTime(reader.GetOrdinal("DueDate")),
                         ExpirationDate = reader.GetDateTime(reader.GetOrdinal("ExpirationDate")),
@@ -325,7 +355,6 @@ namespace LapTrinhWindow.Repositories.UserRepositories
                     });
                 }
             }
-
             catch (SqlException ex)
             {
                 Console.WriteLine($"Lỗi SQL: {ex.Message}");
@@ -337,6 +366,5 @@ namespace LapTrinhWindow.Repositories.UserRepositories
 
             return results;
         }
-
     }
 }

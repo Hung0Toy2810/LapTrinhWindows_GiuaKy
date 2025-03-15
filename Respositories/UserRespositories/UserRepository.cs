@@ -5,9 +5,23 @@ using Microsoft.Extensions.Configuration;
 
 namespace LapTrinhWindow.Repositories.UserRepositories
 {
+    public static class SqlDataReaderExtensions
+    {
+        public static bool HasColumn(this SqlDataReader reader, string columnName)
+        {
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                if (reader.GetName(i).Equals(columnName, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+            return false;
+        }
+    }
+
     public class UserRepository : IUserRepository
     {
         private readonly string? _connectionString;
+        
 
         public UserRepository(IConfiguration configuration)
         {
@@ -278,5 +292,51 @@ namespace LapTrinhWindow.Repositories.UserRepositories
                 throw; // Ném lại lỗi để caller xử lý
             }
         }
+        public async Task<IEnumerable<BookReservationDto>> GetReservedBooksByUserIdAsync(int userId) 
+        {
+            var results = new List<BookReservationDto>();
+
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+
+                using var command = connection.CreateCommand();
+                command.CommandText = @"
+                    SELECT * 
+                    FROM Reservations 
+                    JOIN Books ON Reservations.BookId = Books.BookId 
+                    WHERE Reservations.UserId = @userId;";
+                command.Parameters.AddWithValue("@userId", userId);
+
+                using var reader = await command.ExecuteReaderAsync();
+                
+                while (await reader.ReadAsync())
+                {
+                    results.Add(new BookReservationDto
+                    {
+                        BookId = reader.GetInt32(reader.GetOrdinal("BookId")),
+                        Author = reader.GetString(reader.GetOrdinal("Author")),
+                        ISBN = reader.GetString(reader.GetOrdinal("ISBN")),
+                        ReservedDate = reader.GetDateTime(reader.GetOrdinal("ReservedDate")),
+                        DueDate = reader.GetDateTime(reader.GetOrdinal("DueDate")),
+                        ExpirationDate = reader.GetDateTime(reader.GetOrdinal("ExpirationDate")),
+                        Status = Enum.Parse<ReservationStatus>(reader.GetString(reader.GetOrdinal("Status")))
+                    });
+                }
+            }
+
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"Lỗi SQL: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi không xác định: {ex.Message}");
+            }
+
+            return results;
+        }
+
     }
 }

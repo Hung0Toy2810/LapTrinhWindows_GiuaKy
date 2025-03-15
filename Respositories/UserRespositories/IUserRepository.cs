@@ -15,5 +15,9 @@ namespace LapTrinhWindow.Repositories.UserRepositories
         Task<User> CreateUserAsync(User user);
         //Get all reserved books by userId
         Task<IEnumerable<BookReservationDto>> GetReservedBooksByUserIdAsync(int userId);
+        // count all reserved books by userId
+        Task<int> CountReservedBooksByUserIdAsync(int userId);
+        // get all brrowed books by userId
+        Task<IEnumerable<BorrowingTransactionBookDto>> GetBorrowedBooksByUserIdAsync(int userId);
     }
 }

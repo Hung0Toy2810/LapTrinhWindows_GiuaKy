@@ -366,5 +366,92 @@ namespace LapTrinhWindow.Repositories.UserRepositories
 
             return results;
         }
+        public async Task<int> CountReservedBooksByUserIdAsync(int userId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT COUNT(*) FROM Reservations WHERE UserId = @userId";
+                command.Parameters.AddWithValue("@userId", userId);
+
+                var result = await command.ExecuteScalarAsync();
+                return result != null ? Convert.ToInt32(result) : 0;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"Lỗi SQL: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi không xác định: {ex.Message}");
+            }
+
+            return 0; 
+        }
+        public async Task<IEnumerable<BorrowingTransactionBookDto>> GetBorrowedBooksByUserIdAsync(int userId)
+        {
+            var results = new List<BorrowingTransactionBookDto>();
+
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT 
+                    bt.BorrowingTransactionId,
+                    bt.UserId,
+                    bt.BookId AS TransactionBookId,  
+                    bt.EmployeeId,
+                    bt.BorrowedDate,
+                    bt.DueDate,
+                    b.BookId AS BookId,  
+                    b.BookName,
+                    b.ISBN,
+                    b.Author,
+                    b.Publisher,
+                    b.Pages,
+                    b.Quantity,
+                    b.Available,
+                    b.CategoryId,
+                    b.Price,
+                    b.Place
+                FROM 
+                    BorrowingTransactions bt
+                JOIN 
+                    Books b ON bt.BookId = b.BookId
+                WHERE 
+                    bt.UserId = @userId"; 
+
+            command.Parameters.AddWithValue("@userId", userId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var dto = new BorrowingTransactionBookDto
+                {
+                    BorrowingTransactionId = reader.GetInt32(reader.GetOrdinal("BorrowingTransactionId")),
+                    UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
+                    BookId = reader.GetInt32(reader.GetOrdinal("TransactionBookId")), 
+                    EmployeeId = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
+                    BorrowedDate = reader.GetDateTime(reader.GetOrdinal("BorrowedDate")),
+                    DueDate = reader.GetDateTime(reader.GetOrdinal("DueDate")),
+                    BookName = reader.GetString(reader.GetOrdinal("BookName")),
+                    ISBN = reader.GetString(reader.GetOrdinal("ISBN")),
+                    Author = reader.GetString(reader.GetOrdinal("Author")),
+                    Publisher = reader.GetString(reader.GetOrdinal("Publisher")),
+                    Pages = reader.GetInt32(reader.GetOrdinal("Pages")),
+                    Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                    Available = reader.GetInt32(reader.GetOrdinal("Available")),
+                    CategoryId = reader.GetInt32(reader.GetOrdinal("CategoryId")),
+                    Price = reader.GetDecimal(reader.GetOrdinal("Price")),
+                    Place = reader.GetString(reader.GetOrdinal("Place")),
+                };
+
+                results.Add(dto);
+            }
+
+            return results;
+        }
     }
 }

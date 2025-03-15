@@ -4,6 +4,7 @@ global using System.ComponentModel.DataAnnotations.Schema;
 global using Microsoft.EntityFrameworkCore;
 global using LapTrinhWindow.Models;
 global using System.Threading.Tasks;
+global using LapTrinhWindow.Repositories.UserRepositories;
 global using System.Diagnostics;
 global using Microsoft.Data.SqlClient;
 global using Microsoft.EntityFrameworkCore.Diagnostics;

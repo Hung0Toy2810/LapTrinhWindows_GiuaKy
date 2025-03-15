@@ -1,19 +1,20 @@
-using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using LapTrinhWindow.Models;
+using Microsoft.Extensions.Configuration;
 
 namespace LapTrinhWindow.Repositories.UserRepositories
 {
     public class UserRepository : IUserRepository
     {
-        
         private readonly string? _connectionString;
+
         public UserRepository(IConfiguration configuration)
         {
             _connectionString = configuration.GetConnectionString("UserConnection");
         }
-       
-        public async Task<User> GetUserByUserName(string userName)
+
+        public async Task<User?> GetUserByUserName(string userName)
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
@@ -25,16 +26,22 @@ namespace LapTrinhWindow.Repositories.UserRepositories
             {
                 return new User
                 {
-                    UserId = reader.GetInt32(0),
-                    Username = reader.GetString(1),
-                    Password = reader.GetString(2),
-                    FullName = reader.GetString(3),
-                    
+                    UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
+                    Username = reader.GetString(reader.GetOrdinal("Username")),
+                    Password = reader.GetString(reader.GetOrdinal("Password")),
+                    FullName = reader.GetString(reader.GetOrdinal("FullName")),
+                    Gender = Enum.Parse<Gender>(reader.GetString(reader.GetOrdinal("Gender"))),
+                    PhoneNumber = reader.GetString(reader.GetOrdinal("PhoneNumber")),
+                    Email = reader.GetString(reader.GetOrdinal("Email")),
+                    Violation = reader.GetInt32(reader.GetOrdinal("Violation")),
+                    SignUpDate = reader.GetDateTime(reader.GetOrdinal("SignUpDate")),
+                    Status = Enum.Parse<AccountStatus>(reader.GetString(reader.GetOrdinal("Status"))),
+                    MemberType = Enum.Parse<MemberType>(reader.GetString(reader.GetOrdinal("MemberType"))),
+                    ExpirationDate = reader.GetDateTime(reader.GetOrdinal("ExpirationDate")),
+                    BorrowedBooks = reader.GetInt32(reader.GetOrdinal("BorrowedBooks"))
                 };
             }
             return null;
         }
-        
-        
     }
 }

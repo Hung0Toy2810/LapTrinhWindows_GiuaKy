@@ -1,9 +1,7 @@
-
-
 namespace LapTrinhWindow.Repositories.UserRepositories
 {
     public interface IUserRepository
     {
-        public Task<User> GetUserByUserName(string userName);
+        Task<User?> GetUserByUserName(string userName);
     }
 }

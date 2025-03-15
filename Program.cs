@@ -1,5 +1,4 @@
-﻿// thêm các thư viện cần thiết trước khi chạy chương trình
-namespace LapTrinhWindow
+﻿namespace LapTrinhWindow
 {
     class Program
     {
@@ -13,14 +12,16 @@ namespace LapTrinhWindow
                 try
                 {
                     var context = services.GetRequiredService<ApplicationDBContext>();
+                    var userRepository = services.GetRequiredService<IUserRepository>();
                     Console.WriteLine("DbContext resolved successfully.");
+                    TestUserRepository(userRepository).Wait();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine($"An error occurred: {ex.Message}");
                 }
 
-                SeedDatabase(services.GetRequiredService<ApplicationDBContext>());
+                //SeedDatabase(services.GetRequiredService<ApplicationDBContext>());
             }
         }
 
@@ -28,9 +29,27 @@ namespace LapTrinhWindow
             Host.CreateDefaultBuilder(args)
                 .ConfigureServices((hostContext, services) =>
                 {
+                    IConfiguration configuration = new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json")
+                        .Build();
+                    string DefaultConnectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
                     services.AddDbContext<ApplicationDBContext>(options =>
                         options.UseSqlServer("Server=localhost,1433;Database=LibraryManagement;User Id=sa;Password=YourPassword123;TrustServerCertificate=true;"));//thay connection string vào đây!!!
+                    services.AddScoped<IUserRepository, UserRepository>();
                 });
+        
+        private static async Task TestUserRepository(IUserRepository userRepository)
+        {
+            var user = await userRepository.GetUserByUserName("Username2");
+            if (user != null)
+            {
+                Console.WriteLine($"User found: {user.FullName}");
+            }
+            else
+            {
+                Console.WriteLine("User not found.");
+            }
+        }
         private static void SeedDatabase(ApplicationDBContext context)
         {
             if (!context.ParentCategories.Any())

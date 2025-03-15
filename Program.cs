@@ -40,7 +40,7 @@
         
         private static async Task TestUserRepository(IUserRepository userRepository)
         {
-            var user = await userRepository.GetUserByUserName("Username2");
+            var user = await userRepository.GetUserByUserNameAsync("Username2");
             if (user != null)
             {
                 Console.WriteLine($"User found: {user.FullName}");

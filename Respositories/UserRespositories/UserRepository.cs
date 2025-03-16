@@ -1,4 +1,5 @@
 using System.Data.SqlClient;
+using System.Data;
 using System.Threading.Tasks;
 using LapTrinhWindow.Models;
 using Microsoft.Extensions.Configuration;
@@ -33,7 +34,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync();
                 using var command = connection.CreateCommand();
                 command.CommandText = "SELECT * FROM Users WHERE Username = @userName";
                 command.Parameters.AddWithValue("@userName", userName);
@@ -76,7 +77,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync();
                 using var command = connection.CreateCommand();
                 command.CommandText = "SELECT COUNT(*) FROM Users";
                 
@@ -92,7 +93,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
                 Console.WriteLine($"Lỗi không xác định: {ex.Message}");
             }
 
-            return 0; // Trả về 0 nếu có lỗi
+            return 0; 
         }
 
 
@@ -101,7 +102,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync();
                 using var transaction = await connection.BeginTransactionAsync(); // Bắt đầu giao dịch
                 using var command = connection.CreateCommand();
 
@@ -165,7 +166,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync();
 
                 using var command = connection.CreateCommand();
                 command.CommandText = "SELECT * FROM Users";
@@ -207,7 +208,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync();
                 
                 using var command = connection.CreateCommand();
                 command.CommandText = "SELECT * FROM Users WHERE UserId = @userId";
@@ -249,7 +250,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
         public async Task<User> CreateUserAsync(User user)
         {
             using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
+            if (connection.State != ConnectionState.Open) await connection.OpenAsync();
 
             using var transaction = await connection.BeginTransactionAsync(); // Bắt đầu giao dịch
             try
@@ -299,7 +300,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync();
 
                 using var command = connection.CreateCommand();
                 command.CommandText = @"
@@ -371,7 +372,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
             try
             {
                 using var connection = new SqlConnection(_connectionString);
-                await connection.OpenAsync();
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync();
                 using var command = connection.CreateCommand();
                 command.CommandText = "SELECT COUNT(*) FROM Reservations WHERE UserId = @userId";
                 command.Parameters.AddWithValue("@userId", userId);
@@ -395,7 +396,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
             var results = new List<BorrowingTransactionBookDto>();
 
             using var connection = new SqlConnection(_connectionString);
-            await connection.OpenAsync();
+            if (connection.State != ConnectionState.Open) await connection.OpenAsync();
             using var command = connection.CreateCommand();
             command.CommandText = @"
                 SELECT 
@@ -453,5 +454,214 @@ namespace LapTrinhWindow.Repositories.UserRepositories
 
             return results;
         }
+
+        public async Task<IEnumerable<TransactionHistoryBookDto>> GetTransactionHistoriesAsync(int userId)
+        {
+            var results = new List<TransactionHistoryBookDto>();
+
+            using var connection = new SqlConnection(_connectionString);
+            if (connection.State != ConnectionState.Open) await connection.OpenAsync();
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT 
+                    th.TransactionHistoryId,
+                    th.UserId,
+                    th.BookId AS TransactionBookId, 
+                    th.EmployeeId,
+                    th.TransactionDate,
+                    th.BorrowedDate,
+                    th.DueDate,
+                    th.ReturnedDate,
+                    th.Fine,
+                    b.BookId AS BookId, 
+                    b.BookName,
+                    b.ISBN,
+                    b.Author,
+                    b.Publisher,
+                    b.Pages,
+                    b.Quantity,
+                    b.Available,
+                    b.CategoryId,
+                    b.Price,
+                    b.Place
+                FROM 
+                    TransactionHistories th
+                JOIN 
+                    Books b ON th.BookId = b.BookId
+                WHERE 
+                    th.UserId = @UserId";
+
+            // Thêm tham số để tránh lỗi SQL Injection
+            command.Parameters.AddWithValue("@UserId", userId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var dto = new TransactionHistoryBookDto
+                {
+                    TransactionHistoryId = reader.GetInt32(reader.GetOrdinal("TransactionHistoryId")),
+                    UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
+                    BookId = reader.GetInt32(reader.GetOrdinal("TransactionBookId")), 
+                    EmployeeId = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
+                    TransactionDate = reader.GetDateTime(reader.GetOrdinal("TransactionDate")),
+                    BorrowedDate = reader.GetDateTime(reader.GetOrdinal("BorrowedDate")),
+                    DueDate = reader.GetDateTime(reader.GetOrdinal("DueDate")),
+                    ReturnedDate = reader.IsDBNull(reader.GetOrdinal("ReturnedDate")) 
+                        ? (DateTime?)null 
+                        : reader.GetDateTime(reader.GetOrdinal("ReturnedDate")), // Kiểm tra NULL
+                    Fine = reader.GetDecimal(reader.GetOrdinal("Fine")),
+                    BookName = reader.GetString(reader.GetOrdinal("BookName")),
+                    ISBN = reader.GetString(reader.GetOrdinal("ISBN")),
+                    Author = reader.GetString(reader.GetOrdinal("Author")),
+                    Publisher = reader.GetString(reader.GetOrdinal("Publisher")),
+                    Pages = reader.GetInt32(reader.GetOrdinal("Pages")),
+                    Quantity = reader.GetInt32(reader.GetOrdinal("Quantity")),
+                    Available = reader.GetInt32(reader.GetOrdinal("Available")),
+                    CategoryId = reader.GetInt32(reader.GetOrdinal("CategoryId")),
+                    Price = reader.GetDecimal(reader.GetOrdinal("Price")),
+                    Place = reader.GetString(reader.GetOrdinal("Place"))
+                };
+
+                results.Add(dto);
+            }
+
+            return results;
+        }
+        public async Task<int> CountAllBooksAsync()
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync();
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT COUNT(*) FROM Books";
+                
+                var result = await command.ExecuteScalarAsync();
+                return result != null ? Convert.ToInt32(result) : 0;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"Lỗi SQL: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi không xác định: {ex.Message}");
+            }
+
+            return 0; 
+        }
+        public async Task<int> CountBooksByCategoryIDAsync(int categoryID)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync();
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT COUNT(*) FROM Books WHERE CategoryId = @CategoryId";
+                command.Parameters.AddWithValue("@CategoryId", categoryID);
+                
+                var result = await command.ExecuteScalarAsync();
+                return result != null ? Convert.ToInt32(result) : 0;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"Lỗi SQL: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi không xác định: {ex.Message}");
+            }
+
+            return 0; 
+        }
+        public async Task<int> CountBooksBorrowingAsync(int userId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                if (connection.State != ConnectionState.Open)await connection.OpenAsync();
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT COUNT(*) FROM BorrowingTransactions WHERE UserId = @UserId";
+                command.Parameters.AddWithValue("@UserId", userId);
+                
+                var result = await command.ExecuteScalarAsync();
+                return result != null ? Convert.ToInt32(result) : 0;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"Lỗi SQL: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi không xác định: {ex.Message}");
+            }
+
+            return 0; 
+        }
+        public async Task<int> CountBooksReservedAsync(int userId)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                await connection.OpenAsync();
+                using var command = connection.CreateCommand();
+                command.CommandText = "SELECT COUNT(*) FROM Reservations WHERE UserId = @UserId AND Status = 'Waiting'";
+                command.Parameters.AddWithValue("@UserId", userId);
+                
+                var result = await command.ExecuteScalarAsync();
+                return result != null ? Convert.ToInt32(result) : 0;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"Lỗi SQL: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi không xác định: {ex.Message}");
+            }
+
+            return 0; 
+        }
+        public async Task<Reservation> CreateBookReservationAsync(Reservation bookReservation)
+        {
+            try
+            {
+                using var connection = new SqlConnection(_connectionString);
+                if (connection.State != ConnectionState.Open) await connection.OpenAsync();
+
+                using var command = connection.CreateCommand();
+                command.CommandText = @"
+                    INSERT INTO Reservations (UserId, BookId, EmployeeId, ReservedDate, DueDate, ExpirationDate, Status)
+                    OUTPUT INSERTED.ReservationId
+                    VALUES (@UserId, @BookId, @EmployeeId, @ReservedDate, @DueDate, @ExpirationDate, @Status)";
+
+                command.Parameters.AddWithValue("@UserId", bookReservation.UserId);
+                command.Parameters.AddWithValue("@BookId", bookReservation.BookId);
+                command.Parameters.AddWithValue("@EmployeeId", bookReservation.EmployeeId);
+                command.Parameters.AddWithValue("@ReservedDate", bookReservation.ReservedDate);
+                command.Parameters.AddWithValue("@DueDate", bookReservation.DueDate);
+                command.Parameters.AddWithValue("@ExpirationDate", bookReservation.ExpirationDate);
+                
+                // Chuyển Enum sang chuỗi một cách an toàn
+                command.Parameters.AddWithValue("@Status", bookReservation.Status.ToString());
+
+                var reservationId = (int)(await command.ExecuteScalarAsync() ?? 0);
+                bookReservation.ReservationId = reservationId;
+
+                return bookReservation;
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"Lỗi SQL: {ex.Number} - {ex.Message}");
+                throw new Exception("Có lỗi xảy ra khi đặt chỗ sách. Vui lòng thử lại sau.", ex);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi không xác định: {ex.Message}");
+                throw;
+            }
+        }
+
+
     }
 }

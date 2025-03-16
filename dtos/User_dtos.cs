@@ -51,4 +51,27 @@ namespace LapTrinhWindow.dto
 
         
     }
+    public class TransactionHistoryBookDto
+    {
+        
+        public int TransactionHistoryId { get; set; }
+        public int UserId { get; set; }
+        public int BookId { get; set; }
+        public int EmployeeId { get; set; }
+        public DateTime TransactionDate { get; set; }
+        public DateTime BorrowedDate { get; set; }
+        public DateTime DueDate { get; set; }
+        public DateTime? ReturnedDate { get; set; }
+        public decimal Fine { get; set; }
+        public string BookName { get; set; } = string.Empty;
+        public string ISBN { get; set; } = string.Empty;
+        public string Author { get; set; } = string.Empty;
+        public string Publisher { get; set; } = string.Empty;
+        public int Pages { get; set; }
+        public int Quantity { get; set; }
+        public int Available { get; set; }
+        public int CategoryId { get; set; }
+        public decimal Price { get; set; }
+        public string Place { get; set; } = string.Empty;
+    }
 }

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LapTrinhWindows")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4f1a5b158a01f709d0d8c7a17c78861422aaeb3b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+535de7071d57d22b62d8c80ebf873c29077a563a")]
 [assembly: System.Reflection.AssemblyProductAttribute("LapTrinhWindows")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LapTrinhWindows")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

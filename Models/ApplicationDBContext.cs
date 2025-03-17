@@ -117,7 +117,7 @@ namespace LapTrinhWindow.Models
                     .HasConversion<string>();
                 entity.Property(u => u.MemberType)
                     .HasConversion<string>();
-                entity.HasIndex(u => u.Username)
+                entity.HasIndex(u => u.UserName)
                     .IsUnique();
             });
             modelBuilder.Entity<Book>(entity =>

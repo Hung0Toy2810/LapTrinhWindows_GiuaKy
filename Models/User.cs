@@ -8,7 +8,7 @@ namespace LapTrinhWindow.Models
         public int UserId { get; set; }
         [Required]
         [MaxLength(50)]
-        public string Username { get; set; } = string.Empty;
+        public string UserName { get; set; } = string.Empty;
         [Required]
         [MaxLength(50)]
         public string Password { get; set; } = string.Empty;

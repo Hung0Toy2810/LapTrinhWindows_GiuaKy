@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LapTrinhWindows.Migrations
 {
     /// <inheritdoc />
-    public partial class AddCategory : Migration
+    public partial class LibraryManagementDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -52,7 +52,7 @@ namespace LapTrinhWindows.Migrations
                 {
                     UserId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Password = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     FullName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -348,9 +348,9 @@ namespace LapTrinhWindows.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_Username",
+                name: "IX_Users_UserName",
                 table: "Users",
-                column: "Username",
+                column: "UserName",
                 unique: true);
             // Bật chế độ Contained Database
             migrationBuilder.Sql(@"
@@ -433,6 +433,7 @@ namespace LapTrinhWindows.Migrations
             migrationBuilder.Sql("DROP USER IF EXISTS AppUser;");
             migrationBuilder.Sql("DROP USER IF EXISTS LibrarianUser;");
             migrationBuilder.Sql("DROP USER IF EXISTS AdminUser;");
+
         }
     }
 }

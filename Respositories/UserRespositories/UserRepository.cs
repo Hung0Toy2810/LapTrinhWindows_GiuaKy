@@ -1,8 +1,4 @@
-using System.Data.SqlClient;
 using System.Data;
-using System.Threading.Tasks;
-using LapTrinhWindow.Models;
-using Microsoft.Extensions.Configuration;
 
 namespace LapTrinhWindow.Repositories.UserRepositories
 {
@@ -45,7 +41,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
                     return new User
                     {
                         UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
-                        Username = reader.GetString(reader.GetOrdinal("Username")),
+                        UserName = reader.GetString(reader.GetOrdinal("Username")),
                         Password = reader.GetString(reader.GetOrdinal("Password")),
                         FullName = reader.GetString(reader.GetOrdinal("FullName")),
                         Gender = Enum.Parse<Gender>(reader.GetString(reader.GetOrdinal("Gender"))),
@@ -123,7 +119,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
                         BorrowedBooks = @borrowedbooks 
                     WHERE UserId = @userid";
 
-                command.Parameters.AddWithValue("@username", user.Username);
+                command.Parameters.AddWithValue("@username", user.UserName);
                 command.Parameters.AddWithValue("@password", user.Password);
                 command.Parameters.AddWithValue("@fullname", user.FullName);
                 command.Parameters.AddWithValue("@gender", user.Gender.ToString());
@@ -177,7 +173,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
                     users.Add(new User
                     {
                         UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
-                        Username = reader.GetString(reader.GetOrdinal("Username")),
+                        UserName = reader.GetString(reader.GetOrdinal("Username")),
                         Password = reader.GetString(reader.GetOrdinal("Password")),
                         FullName = reader.GetString(reader.GetOrdinal("FullName")),
                         Gender = Enum.Parse<Gender>(reader.GetString(reader.GetOrdinal("Gender"))),
@@ -220,7 +216,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
                     return new User
                     {
                         UserId = reader.GetInt32(reader.GetOrdinal("UserId")),
-                        Username = reader.GetString(reader.GetOrdinal("Username")),
+                        UserName = reader.GetString(reader.GetOrdinal("Username")),
                         Password = reader.GetString(reader.GetOrdinal("Password")),
                         FullName = reader.GetString(reader.GetOrdinal("FullName")),
                         Gender = Enum.Parse<Gender>(reader.GetString(reader.GetOrdinal("Gender"))),
@@ -264,7 +260,7 @@ namespace LapTrinhWindow.Repositories.UserRepositories
                     @violation, @signupdate, @status, @membertype, @expirationdate, @borrowedbooks);
                     SELECT SCOPE_IDENTITY();"; // Lấy ID của User vừa tạo
 
-                command.Parameters.AddWithValue("@username", user.Username);
+                command.Parameters.AddWithValue("@username", user.UserName);
                 command.Parameters.AddWithValue("@password", user.Password);
                 command.Parameters.AddWithValue("@fullname", user.FullName);
                 command.Parameters.AddWithValue("@gender", user.Gender.ToString());
